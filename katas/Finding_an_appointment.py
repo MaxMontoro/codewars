@@ -5,8 +5,6 @@ def parse_meeting(meeting):
 
 
 def parse_time(time):
-    if time > 2400:
-        raise ValueError
     if len(str(time)) == 3:
         time = '0' + str(time)
     str_time = str(time)[:2] + ':' + str(time)[2:]
@@ -14,8 +12,9 @@ def parse_time(time):
 
 
 class Person(object):
-    def __init__(self):
+    def __init__(self, name):
         self.meetings = []
+        self.name = name
 
     def add_meeting(self, meeting):
         time = parse_meeting(meeting)
@@ -33,22 +32,16 @@ class Person(object):
 
 class WorkingHours(object):
     def __iter__(self):
-        time = 900
-        current_time = TimeInteger(time)
+        current_time = TimeInteger(900)
         while current_time.value < 1900:
+            yield current_time.value
             current_time += 1
-            print(current_time)
-            yield current_time
-        raise StopIteration
 
-    def valid_working_hour(self, time):
-        if time in set(self.hours) and int(str(time)[-2:]) < 60:
+    @staticmethod
+    def validate_working_hour(time):
+        if 900  <= time <= 1900:
             return True
         return False
-
-
-class NotGoodTime(Exception):
-    pass
 
 
 class TimeInteger(int):
@@ -65,45 +58,65 @@ class TimeInteger(int):
                 self.value += 1
         return self
 
-    def __eq__(self, integer):
-        return self.value == integer
+    def __ge__(self, other):
+        if isinstance(other, int):
+            return self.value >= other
+        else:
+            return self.value >= other.value
 
+    def __le__(self, other):
+        if isinstance(other, int):
+            return self.value <= other
+        else:
+            return self.value <= other.value
 
 
 def get_start_time(schedules, duration):
+
     def check_time(time):
         for person in person_dictionary:
-            current_person = person_dictionary[person]
-            if current_person.is_busy_at(time):
+            if person_dictionary[person].is_busy_at(time):
                 return False
         return True
+
     person_names= ['Annie', 'Bob', 'Candice', 'Danny', 'Esther', 'Ferenc', 'Gertrud']
     person_dictionary = {}
-    for index, persons_schedule in enumerate(schedules):
-        person_name = person_names[index]
-        person_dictionary[person_name] = Person()
-        for meeting in persons_schedule:
-            person_dictionary[person_name].add_meeting(meeting)
+
+    def build_schedules(schedules):
+        for index, persons_schedule in enumerate(schedules):
+            person_dictionary[person_names[index]] = Person(person_names[index])
+            for meeting in persons_schedule:
+                person_dictionary[person_names[index]].add_meeting(meeting)
+
+    build_schedules(schedules)
+
     time_window_free = True
-    for start_time in WorkingHours():
-        if not start_time:
-            continue
+    new_free_window_starts_at = 900
+
+    for minute in WorkingHours():
+
         if not time_window_free:
-            new_free_window_starts_at = start_time
-        try:
-            time_window_free = True
-            minute = 0
-            while minute < duration:
-                is_free_minute = check_time(start_time)
-                if not is_free_minute:
-                    time_window_free = False
-                    raise NotGoodTime
-                if not WorkingHours().valid_working_hour(start_time + minute):
-                    raise NotGoodTime
-                print(new_free_window_starts_at, minute)
-                minute += 1
-                if time_window_free and minute == duration:
+            new_free_window_starts_at = minute
+
+        time_window_free = True
+        free_minutes_so_far = 0
+        while free_minutes_so_far < duration:
+            minute_to_check = TimeInteger(minute) + free_minutes_so_far
+            is_free_minute = check_time(minute_to_check)
+
+            if not is_free_minute:
+                time_window_free = False
+                break
+
+            free_minutes_so_far += 1
+            if time_window_free and free_minutes_so_far == duration:
+
+                def validate_meeting_time(start, end):
+                    return WorkingHours.validate_working_hour(start) and WorkingHours.validate_working_hour(end)
+
+                meeting_start_time = new_free_window_starts_at
+                meeting_end_time = TimeInteger(new_free_window_starts_at) + duration
+                if validate_meeting_time(meeting_start_time, meeting_end_time):
                     return parse_time(new_free_window_starts_at)
-        except NotGoodTime:
-            continue
+
     return None

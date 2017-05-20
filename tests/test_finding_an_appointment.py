@@ -33,9 +33,33 @@ class TestFindingAnAppointment(unittest.TestCase):
 
     def test_workinghours(self):
         working_hours = WorkingHours()
-        for minute in working_hours:
-            print(minute)
-        self.assertTrue(False)
+        minutes = (minute for minute in working_hours)
+        (self.assertIn(member, minutes) for member in (900, 901, 1015, 1515, 1859))
+
+
+    def test_start_time_10(self):
+        schedules = [
+          [['09:12', '11:30'], ['13:30', '16:00'], ['16:00', '17:30'], ['17:45', '19:00']],
+          [['09:15', '12:00'], ['14:00', '16:30'], ['17:00', '17:30']],
+          [['11:30', '12:15'], ['15:00', '16:30'], ['17:45', '19:00']]
+        ]
+        assertEqual(get_start_time(schedules, 10), '09:00')
+
+    def test_start_time_10(self):
+        schedules = [
+          [['09:12', '11:30'], ['13:30', '16:00'], ['16:00', '17:30'], ['17:45', '19:00']],
+          [['09:15', '12:00'], ['14:00', '16:30'], ['17:00', '17:30']],
+          [['11:30', '12:15'], ['15:00', '16:30'], ['17:45', '19:00']]
+        ]
+        self.assertEqual(get_start_time(schedules, 10), '09:00')
+
+    def test_start_time_x(self):
+        schedules = [
+          [['09:00', '11:30'], ['13:30', '16:00'], ['16:00', '17:30'], ['17:45', '19:00']],
+          [['09:15', '12:00'], ['14:00', '16:30'], ['17:00', '17:30']],
+          [['11:30', '12:15'], ['15:00', '16:30'], ['17:45', '19:00']]
+        ]
+        self.assertEqual(get_start_time(schedules, 10), '12:15')
 
 
 '''
