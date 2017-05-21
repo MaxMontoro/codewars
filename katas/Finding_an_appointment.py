@@ -1,3 +1,5 @@
+#! usr/bin/python
+
 def parse_meeting(meeting):
     start_time = int(meeting[0].replace(':', ''))
     end_time =  int(meeting[1].replace(':', ''))
@@ -116,6 +118,7 @@ def get_start_time(schedules, duration):
 
                 meeting_start_time = new_free_window_starts_at
                 meeting_end_time = TimeInteger(new_free_window_starts_at) + duration
+                
                 if validate_meeting_time(meeting_start_time, meeting_end_time):
                     return parse_time(new_free_window_starts_at)
 

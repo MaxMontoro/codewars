@@ -1,6 +1,10 @@
 from tests.test_helpers import *
 
-from katas.Finding_an_appointment import *
+from katas.Finding_an_appointment import parse_time,
+                                         TimeInteger,
+                                         WorkingHours,
+                                         get_start_time
+                                         
 
 class TestFindingAnAppointment(unittest.TestCase):
     def test_parse_time_900(self):
@@ -60,27 +64,3 @@ class TestFindingAnAppointment(unittest.TestCase):
           [['11:30', '12:15'], ['15:00', '16:30'], ['17:45', '19:00']]
         ]
         self.assertEqual(get_start_time(schedules, 10), '12:15')
-
-
-'''
-schedules = [
-  [['09:12', '11:30'], ['13:30', '16:00'], ['16:00', '17:30'], ['17:45', '19:00']],
-  [['09:15', '12:00'], ['14:00', '16:30'], ['17:00', '17:30']],
-  [['11:30', '12:15'], ['15:00', '16:30'], ['17:45', '19:00']]
-]
-
-test.assert_equals(get_start_time(schedules, 10), '09:00')
-
-
-
-schedules = [
-  [['09:00', '11:30'], ['13:30', '16:00'], ['16:00', '17:30'], ['17:45', '19:00']],
-  [['09:15', '12:00'], ['14:00', '16:30'], ['17:00', '17:30']],
-  [['11:30', '12:15'], ['15:00', '16:30'], ['17:45', '19:00']]
-]
-test.assert_equals(get_start_time(schedules, 60), '12:15')
-test.assert_equals(get_start_time(schedules, 119), None)
-test.assert_equals(get_start_time(schedules, 74), '12:15')
-test.assert_equals(get_start_time(schedules, 76), None)
-test.assert_equals(get_start_time(schedules, 80), None)
-'''
